@@ -1,0 +1,8 @@
+Search(key)
+----------------------------------------------------------------------
+1:  key is current_node.key:
+2:      return current_node
+3:  key < current_node.key:
+4:      current_node.left.search(key)
+5:  key > current_node.key:
+6:      current_node.right.search(key)

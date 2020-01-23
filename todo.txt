@@ -1,0 +1,20 @@
+//
+// Created by Deniz Dogan 2019. Kogan Inc.
+//
+
+TODO: GUI
+
+    - Save Graph -> Save mit new Window - Deniz
+    . Problem multitask
+
+TODO: Timo
+
+    - insert checken
+
+TODO: Deniz
+
+    - optional
+    - pseudocode updaten
+
+
+

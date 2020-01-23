@@ -1,0 +1,6 @@
+# .gitignore for 2019 project by Deniz Dogan and Timo Kilb
+
+__pycache__/
+.idea/
+.DS_Store
+test.py
