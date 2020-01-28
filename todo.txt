@@ -2,19 +2,23 @@
 // Created by Deniz Dogan 2019. Kogan Inc.
 //
 
-TODO: GUI
+TODO:
 
-    - Save Graph -> Save mit new Window - Deniz
-    . Problem multitask
+    - keybindings:
+            Insert: i
+            Delete: d
+            search: s
+            next: n
+            prev: p
+            faster:  +
+            play: enter
+            stop: backspace
+            clear: c
+            slower:  -
+            algorithm: a
+            mode: m
 
-TODO: Timo
 
-    - insert checken
-
-TODO: Deniz
-
-    - optional
-    - pseudocode updaten
 
 
 

@@ -10,6 +10,9 @@ class Treap:
 
     def find(self, key, treap):
         self.root.find(key, treap)
+        self.root.default_color()
+        self.root.clear_colors()
+
 
     def clear_colors(self):
         self.root.clear_colors()
@@ -17,5 +20,5 @@ class Treap:
     def delete(self, key, treap):
         self.root.delete(key, treap)
 
-    def pre_order(self, graph_list):
-        self.root.pre_order(graph_list)
+    def find_ohne(self, key):
+        return self.root.find_ohne(key)

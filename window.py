@@ -4,16 +4,12 @@ import networkx as nx
 import log_widget as lw
 import pseudocode_widget as pw
 import animation_handler as ah
-import time
-import math
-import re
 import skip_list as sl
 from skip_list_graph import SkipListGraph
 from treap_graph import TreapGraph
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from tkinter import filedialog, messagebox
-import time
+import webbrowser
 
 
 def update_canvas(graph):
@@ -32,14 +28,14 @@ def update_canvas(graph):
 
 
 # TODO : char filter !
-def search_command():
+def search_command(event=None):
     global algorithm
     global animation_handler
     global graph_list_index
     global log_widget
     global log_message
     global treap
-
+    global log_list
 
     # Clear the old animations and reset index to zero
     animation_handler.get_instance().skip_list_graph_list.clear()
@@ -49,34 +45,62 @@ def search_command():
     graph_list_index = 0
     plot.clear()
 
-    value = int(value_entry.get())
+    try:
+        value = int(value_entry.get())
+    except ValueError:
+        if len(value_entry.get()) == 0:
+            log_widget.push("ValueError: Enter a key to perfom an operation")
+            log_message.config(text=log_widget.update())
+            return
+        else:
+            log_widget.push(f"Invalid Key : {value_entry.get()}")
+            log_message.config(text=log_widget.update())
+            return
 
     # Handling the log widget:
-    log_widget.push(f"Searched Key: {value}")
+    log_widget.push(f"search:{value}", log_list)
     log_message.config(text=log_widget.update())
 
+    skip_list.find(value)
+    treap.find(value, treap)
+
+    skip_list_start = len(animation_handler.get_instance().skip_list_history[0])
+    treap_start = len(animation_handler.get_instance().treap_history[0])
+
+    for element in animation_handler.get_instance().skip_list_graph_list:
+        animation_handler.get_instance().skip_list_history[0].append(element)
+    for element in animation_handler.get_instance().pseudocode_list:
+        animation_handler.get_instance().skip_list_history[1].append(element)
+
+    for element in animation_handler.get_instance().treap_graph_list:
+        animation_handler.get_instance().treap_history[0].append(element)
+    for element in animation_handler.get_instance().treap_pseudocode_list:
+        animation_handler.get_instance().treap_history[1].append(element)
+
+    skip_list_end = len(animation_handler.get_instance().skip_list_history[0]) - 1
+    treap_end = len(animation_handler.get_instance().treap_history[0]) - 1
+
+    animation_handler.get_instance().skip_list_time_stamps.append((skip_list_start, skip_list_end))
+    animation_handler.get_instance().treap_time_stamps.append((treap_start, treap_end))
+
     if algorithm.get() == "Skip List":
-        skip_list.find(value)
         update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
         pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
                               animation_handler.get_instance().pseudocode_list[graph_list_index][1])
     elif algorithm.get() == "Treap":
-        treap.find(value, treap)
         update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
-        pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
-                              animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+        pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],  # text
+                              animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])  # color
+
     value_entry.delete(0, tk.END)
 
-
-# Insert the value in the entry into the data structure, call the draw function
-# TODO : char filter !
-# TODO: Empty the graph lists here so that a new opeator is played, you dont have to skip through the earlier animation???
-def insert_command():
+def insert_command(event=None):
     global algorithm
     global animation_handler
     global graph_list_index
     global log_widget
     global log_message
+    global log_list
     global treap
 
     # Clear the old animations and reset index to zero
@@ -89,16 +113,43 @@ def insert_command():
 
     try:
         value = int(value_entry.get())
-    except:
-        log_widget.push("Invalid Key")
-        log_message.config(text=log_widget.update())
-        return
+    except ValueError:
+        if len(value_entry.get()) == 0:
+            log_widget.push("ValueError: Enter a key to perfom an operation")
+            log_message.config(text=log_widget.update())
+            return
+        elif value_entry.get() == "jackson":
+            webbrowser.open("https://youtu.be/PfrV_6yWbEg?autoplay=1&t=210", new=1)
+            return
+        else:
+            log_widget.push(f"Invalid Key : {value_entry.get()}")
+            log_message.config(text=log_widget.update())
+            return
 
     skip_list.insert(value)
     treap.insert(value, treap)
 
+    skip_list_start = len(animation_handler.get_instance().skip_list_history[0])
+    treap_start = len(animation_handler.get_instance().treap_history[0])
+
+    for element in animation_handler.get_instance().skip_list_graph_list:
+        animation_handler.get_instance().skip_list_history[0].append(element)
+    for element in animation_handler.get_instance().pseudocode_list:
+        animation_handler.get_instance().skip_list_history[1].append(element)
+
+    for element in animation_handler.get_instance().treap_graph_list:
+        animation_handler.get_instance().treap_history[0].append(element)
+    for element in animation_handler.get_instance().treap_pseudocode_list:
+        animation_handler.get_instance().treap_history[1].append(element)
+
+    skip_list_end = len(animation_handler.get_instance().skip_list_history[0]) - 1
+    treap_end = len(animation_handler.get_instance().treap_history[0]) - 1
+
+    animation_handler.get_instance().skip_list_time_stamps.append((skip_list_start, skip_list_end))
+    animation_handler.get_instance().treap_time_stamps.append((treap_start, treap_end))
+
     # Handling the log widget:
-    log_widget.push(f"Inserted Key: {value}")
+    log_widget.push(f"insert:{value}", log_list)
     log_message.config(text=log_widget.update())
 
     if algorithm.get() == "Skip List":
@@ -111,17 +162,16 @@ def insert_command():
                               animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])  # color
 
     value_entry.delete(0, tk.END)
-    # value_entry.insert(0, f"\tLast Operation was INSERT with Key : {value}")
 
 
-# TODO : char filter !
-def delete_command():
+def delete_command(event=None):
     global algorithm
     global graph_list_index
     global animation_handler
     global treap
     global log_widget
     global log_message
+    global log_list
 
     animation_handler.get_instance().skip_list_graph_list.clear()
     animation_handler.get_instance().treap_graph_list.clear()
@@ -131,28 +181,56 @@ def delete_command():
     graph_list_index = 0
     plot.clear()
 
-    value = int(value_entry.get())
+    try:
+        value = int(value_entry.get())
+    except ValueError:
+        if len(value_entry.get()) == 0:
+            log_widget.push("ValueError: Enter a key to perfom an operation")
+            log_message.config(text=log_widget.update())
+            return
+        else:
+            log_widget.push(f"Invalid Key : {value_entry.get()}")
+            log_message.config(text=log_widget.update())
+            return
+
     skip_list.delete(value)
     treap.delete(value, treap)
 
+    skip_list_start = len(animation_handler.get_instance().skip_list_history[0])
+    treap_start = len(animation_handler.get_instance().treap_history[0])
+
+    for element in animation_handler.get_instance().skip_list_graph_list:
+        animation_handler.get_instance().skip_list_history[0].append(element)
+    for element in animation_handler.get_instance().pseudocode_list:
+        animation_handler.get_instance().skip_list_history[1].append(element)
+
+    for element in animation_handler.get_instance().treap_graph_list:
+        animation_handler.get_instance().treap_history[0].append(element)
+    for element in animation_handler.get_instance().treap_pseudocode_list:
+        animation_handler.get_instance().treap_history[1].append(element)
+
+    skip_list_end = len(animation_handler.get_instance().skip_list_history[0]) - 1
+    treap_end = len(animation_handler.get_instance().treap_history[0]) - 1
+
+    animation_handler.get_instance().skip_list_time_stamps.append((skip_list_start, skip_list_end))
+    animation_handler.get_instance().treap_time_stamps.append((treap_start, treap_end))
+
     # Handling the log widget:
-    log_widget.push(f"Deleted Key: {value}")
+    log_widget.push(f"delete:{value}", log_list)
     log_message.config(text=log_widget.update())
 
-    current_presst_button = "delete"
     if algorithm.get() == "Skip List":
         update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
         pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
                               animation_handler.get_instance().pseudocode_list[graph_list_index][1])
     elif algorithm.get() == "Treap":
-        # TODO UPDATE CANVAS
         update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
         pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
                               animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
     value_entry.delete(0, tk.END)
-    # value_entry.insert(0, f"\tLast Operation was DELETE with Key : {value}")
 
-def play_pause_command():
+
+def play_pause_command(event=None):
     global active
     global play_pause_button
     if play_pause_button["text"] == "Play":
@@ -164,103 +242,185 @@ def play_pause_command():
         active = False
 
 
-def play_command():
+def play_command(event=None):
     global active
     global canvas
     global graph_list_index
     global animation_handler
     global algorithm
     global pseudocode_obj
+    global mode
+    global speed
 
     if active is False:
         return
-    elif algorithm.get() == "Skip List":
-        if graph_list_index < len(animation_handler.get_instance().skip_list_graph_list) - 1:
-            graph_list_index += 1
-            update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
-            pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().pseudocode_list[graph_list_index][1])
-            root.after(400, play_command)
-#        else: TODO: Change Play Pause Label to "Replay" and implement replay function
+
+    elif mode == "single_command":
+        if algorithm.get() == "Skip List":
+            if graph_list_index < len(animation_handler.get_instance().skip_list_graph_list) - 1:
+                graph_list_index += 1
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().pseudocode_list[graph_list_index][1])
+                root.after(1000 - speed, play_command)
+
+            if graph_list_index == len(animation_handler.get_instance().skip_list_graph_list) - 1:
+                graph_list_index = 0
+                play_pause_command()
+
+        elif algorithm.get() == "Treap":
+            if graph_list_index < len(animation_handler.get_instance().treap_graph_list) - 1:
+                graph_list_index += 1
+                update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+                root.after(1000 - speed, play_command)
+            if graph_list_index == len(animation_handler.get_instance().skip_list_graph_list) - 1:
+                graph_list_index = 0
+                play_pause_command()
+
+    elif mode == "all_commands":
+        if algorithm.get() == "Skip List":
+            if graph_list_index < len(animation_handler.get_instance().skip_list_history[0]) - 1:
+                graph_list_index += 1
+                update_canvas(animation_handler.get_instance().skip_list_history[0][graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().skip_list_history[1][graph_list_index][0],
+                                      animation_handler.get_instance().skip_list_history[1][graph_list_index][1])
+                root.after(1000 - speed, play_command)
+
+            if graph_list_index == len(animation_handler.get_instance().skip_list_history[0]) - 1:
+                graph_list_index = 0
+                play_pause_command()
+
+        elif algorithm.get() == "Treap":
+            if graph_list_index < len(animation_handler.get_instance().treap_history[0]) - 1:
+                graph_list_index += 1
+                update_canvas(animation_handler.get_instance().treap_history[0][graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().treap_history[1][graph_list_index][0],
+                                      animation_handler.get_instance().treap_history[1][graph_list_index][1])
+                root.after(1000 - speed, play_command)
+            if graph_list_index == len(animation_handler.get_instance().treap_history[0]) - 1:
+                graph_list_index = 0
+                play_pause_command()
 
 
-    elif algorithm.get() == "Treap":
-        if graph_list_index < len(animation_handler.get_instance().treap_graph_list) -1:
-            graph_list_index += 1
-            update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
-            pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
-            root.after(1000, play_command)
-# TODO : Copy here replay code from above
 
-def previous_command():
+def previous_command(event=None):
     global graph_list_index
     global animation_handler
     global algorithm
     global active
     global play_pause_button
+    global command_list_index
+    global mode
     play_pause_button.config(text="Play")
     active = False
 
-    if algorithm.get() == "Skip List":
-        if graph_list_index < len(animation_handler.get_instance().skip_list_graph_list) - 1 and graph_list_index > 0:
-            graph_list_index -= 1
-            update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
-            pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().pseudocode_list[graph_list_index][1])
-    elif algorithm.get() == "Treap":
-        if graph_list_index < len(animation_handler.get_instance().treap_graph_list) and graph_list_index > 0:
-            graph_list_index -= 1
-            update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
-            pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+    if mode == "single_command":
+        if algorithm.get() == "Skip List":
+            if graph_list_index < len(animation_handler.get_instance().skip_list_graph_list) and graph_list_index > 0:
+                graph_list_index -= 1
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().pseudocode_list[graph_list_index][1])
+        elif algorithm.get() == "Treap":
+            if graph_list_index < len(animation_handler.get_instance().treap_graph_list) and graph_list_index > 0:
+                graph_list_index -= 1
+                update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+
+    elif mode == "all_commands":
+        if command_list_index > 0:
+            command_list_index -= 1
+            animation_handler.load_command(command_list_index)
+            if algorithm.get() == "Skip List":
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[0])
+
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[0][0],
+                                      animation_handler.get_instance().pseudocode_list[0][1])
+            elif algorithm.get() == "Treap":
+                update_canvas(animation_handler.get_instance().treap_graph_list[0])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[0][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[0][1])
+        else:
+            return
 
 
-def next_command():
+def next_command(event=None):
     global graph_list_index
     global animation_handler
     global algorithm
     global active
     global play_pause_button
+    global command_list_index
+    global mode
     play_pause_button.config(text="Play")
     active = False
+    if mode == "single_command":
+        if algorithm.get() == "Skip List":
+            if graph_list_index < len(animation_handler.get_instance().skip_list_graph_list) - 1:
+                graph_list_index += 1
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
 
-    if algorithm.get() == "Skip List":
-        if graph_list_index < len(animation_handler.get_instance().skip_list_graph_list) - 1:
-            graph_list_index += 1
-            update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().pseudocode_list[graph_list_index][1])
+        elif algorithm.get() == "Treap":
+            if graph_list_index < len(animation_handler.get_instance().treap_graph_list) - 1:
+                graph_list_index += 1
+                update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+    elif mode == "all_commands":
+        if command_list_index < len(animation_handler.get_instance().treap_time_stamps) - 1:
+            command_list_index += 1
 
-            pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().pseudocode_list[graph_list_index][1])
-    elif algorithm.get() == "Treap":
-        if graph_list_index < len(animation_handler.get_instance().treap_graph_list) - 1:
-            graph_list_index += 1
-            update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
-            pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+            animation_handler.load_command(command_list_index)
+            if algorithm.get() == "Skip List":
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[0])
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[0][0],
+                                      animation_handler.get_instance().pseudocode_list[0][1])
+            elif algorithm.get() == "Treap":
+                update_canvas(animation_handler.get_instance().treap_graph_list[0])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[0][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[0][1])
+        else:
+            return
 
 
-def stop_command():
+def stop_command(event=None):
     global treap
     global algorithm
     global graph_list_index
     global active
     global play_pause_button
+    global mode
     play_pause_button.config(text="Play")
     active = False
     graph_list_index = 0
 
-    if algorithm.get() == "Skip List":
-        update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
-        pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
-                              animation_handler.get_instance().pseudocode_list[graph_list_index][1])
-    elif algorithm.get() == "Treap":
-        update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
-        pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
-                              animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+    if mode == "single_command":
+        if algorithm.get() == "Skip List":
+            update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
+            pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
+                                  animation_handler.get_instance().pseudocode_list[graph_list_index][1])
+        elif algorithm.get() == "Treap":
+            update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+            pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
+                                  animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+    elif mode == "all_commands":
+
+        if algorithm.get() == "Skip List":
+            update_canvas(animation_handler.get_instance().skip_list_history[0][graph_list_index])
+            pseudocode_obj.update(animation_handler.get_instance().skip_list_history[1][graph_list_index][0],
+                                  animation_handler.get_instance().skip_list_history[1][graph_list_index][1])
+        elif algorithm.get() == "Treap":
+            update_canvas(animation_handler.get_instance().treap_history[0][graph_list_index])
+            pseudocode_obj.update(animation_handler.get_instance().treap_history[1][graph_list_index][0],
+                                  animation_handler.get_instance().treap_history[1][graph_list_index][1])
 
 
-def clear_command():
+def clear_command(event=None):
     global graph_list_index
     global animation_handler
     global skip_list_graph
@@ -270,6 +430,11 @@ def clear_command():
     global skip_list
     global active
     global play_pause_button
+    global log_list
+    global log_widget
+    global log_message
+    global plot
+    global canvas
     play_pause_button.config(text="Play")
     active = False
     graph_list_index = 0
@@ -282,6 +447,10 @@ def clear_command():
     animation_handler.get_instance().pseudocode_list.clear()
     animation_handler.get_instance().treap_pseudocode_list.clear()
 
+    log_widget.clear()
+    log_message.config(text=log_widget.update())
+    log_list.clear()
+
     treap_graph = TreapGraph(treap)
     skip_list_graph = SkipListGraph(skip_list)
 
@@ -289,27 +458,47 @@ def clear_command():
     animation_handler.get_instance().skip_list_graph_list.append(skip_list_graph.create_graph(skip_list))
 
     if algorithm.get() == "Treap":
-        update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+        # update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+        treap_graph.draw(treap_graph.treap, plot, canvas)
+
     else:
         update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
 
 
-# TODO: Use graph list and keep track of index? Test as soon as there are animations for treap
-
-def switch_algorithm(string):
-    global treap_graph
-    global skip_list_graph
-    global canvas
+def switch_algorithm(string, event=None):
     global graph_list_index
-    global plot
     global active
     global play_pause_button
+    global animation_handler
+    global command_list_index
+    global mode
+    global canvas
+    global plot
     play_pause_button.config(text="Play")
     active = False
-    if string == "Treap":
-        treap_graph.draw(treap_graph.treap, plot, canvas)
-    elif string == "Skip List":
-        skip_list_graph.draw(skip_list_graph.skip_list, plot, canvas)
+    graph_list_index = 0
+    if mode == "single_command":
+        if string == "Treap":
+            try:
+                update_canvas(animation_handler.get_instance().treap_graph_list[0])
+            except IndexError:
+                treap_graph.draw(treap_graph.treap, plot, canvas)
+        elif string == "Skip List":
+            try:
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[0])
+            except IndexError:
+                skip_list_graph.draw(skip_list_graph.skip_list, plot, canvas)
+    elif mode == "all_commands":
+        if string == "Treap":
+            try:
+                update_canvas(animation_handler.get_instance().treap_graph_list[0])
+            except IndexError:
+                treap_graph.draw(treap_graph.treap, plot, canvas)
+        elif string == "Skip List":
+            try:
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[0])
+            except IndexError:
+                skip_list_graph.draw(skip_list_graph.skip_list, plot, canvas)
 
 
 def read_data_command():
@@ -317,29 +506,113 @@ def read_data_command():
     global animation_handler
     global treap
     global graph_list_index
+    global data
+    global log_message
+    global log_widget
     graph_list_index = 0
 
-    for line in data:
+    for command, key in data:
         animation_handler.get_instance().skip_list_graph_list.clear()
         animation_handler.get_instance().treap_graph_list.clear()
         animation_handler.get_instance().pseudocode_list.clear()
         animation_handler.get_instance().treap_pseudocode_list.clear()
 
-        skip_list.insert(int(line))
-        treap.insert(int(line), treap)
+        if command == "insert":
+            if treap.root.key is not None:
+                if treap.find_ohne(int(key)):
+                    continue
+            if skip_list.search(int(key)):
+                continue
+            skip_list.insert(int(key))
+            treap.insert(int(key), treap)
+            skip_list_start = len(animation_handler.get_instance().skip_list_history[0])
+            treap_start = len(animation_handler.get_instance().treap_history[0])
 
-        if algorithm.get() == "Skip List":
-            update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
-            pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().pseudocode_list[graph_list_index][1])
-        elif algorithm.get() == "Treap":
-            update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
-            pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
-                                  animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+            for element in animation_handler.get_instance().skip_list_graph_list:
+                animation_handler.get_instance().skip_list_history[0].append(element)
+            for element in animation_handler.get_instance().pseudocode_list:
+                animation_handler.get_instance().skip_list_history[1].append(element)
+
+            for element in animation_handler.get_instance().treap_graph_list:
+                animation_handler.get_instance().treap_history[0].append(element)
+            for element in animation_handler.get_instance().treap_pseudocode_list:
+                animation_handler.get_instance().treap_history[1].append(element)
+
+            skip_list_end = len(animation_handler.get_instance().skip_list_history[0]) - 1
+            treap_end = len(animation_handler.get_instance().treap_history[0]) - 1
+
+            animation_handler.get_instance().skip_list_time_stamps.append((skip_list_start, skip_list_end))
+            animation_handler.get_instance().treap_time_stamps.append((treap_start, treap_end))
+            # Handling the log widget:
+            log_widget.push(f"insert:{int(key)}", log_list)
+            log_message.config(text=log_widget.update())
+
+            if algorithm.get() == "Skip List":
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().pseudocode_list[graph_list_index][1])
+            elif algorithm.get() == "Treap":
+                update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+        elif command == "search":
+            skip_list.find(int(key))
+            treap.find(int(key), treap)
+            for element in animation_handler.get_instance().skip_list_graph_list:
+                animation_handler.get_instance().skip_list_history[0].append(element)
+            for element in animation_handler.get_instance().pseudocode_list:
+                animation_handler.get_instance().skip_list_history[1].append(element)
+
+            for element in animation_handler.get_instance().treap_graph_list:
+                animation_handler.get_instance().treap_history[0].append(element)
+            for element in animation_handler.get_instance().treap_pseudocode_list:
+                animation_handler.get_instance().treap_history[1].append(element)
+
+            log_widget.push(f"search:{int(key)}", log_list)
+            log_message.config(text=log_widget.update())
+
+            if algorithm.get() == "Skip List":
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().pseudocode_list[graph_list_index][1])
+            elif algorithm.get() == "Treap":
+                update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
+        elif command == "delete":
+            skip_list.delete(int(key))
+            treap.delete(int(key), treap)
+            skip_list_start = len(animation_handler.get_instance().skip_list_history[0])
+            treap_start = len(animation_handler.get_instance().treap_history[0])
+
+            for element in animation_handler.get_instance().skip_list_graph_list:
+                animation_handler.get_instance().skip_list_history[0].append(element)
+            for element in animation_handler.get_instance().pseudocode_list:
+                animation_handler.get_instance().skip_list_history[1].append(element)
+
+            for element in animation_handler.get_instance().treap_graph_list:
+                animation_handler.get_instance().treap_history[0].append(element)
+            for element in animation_handler.get_instance().treap_pseudocode_list:
+                animation_handler.get_instance().treap_history[1].append(element)
+
+            skip_list_end = len(animation_handler.get_instance().skip_list_history[0]) - 1
+            treap_end = len(animation_handler.get_instance().treap_history[0]) - 1
+
+            animation_handler.get_instance().skip_list_time_stamps.append((skip_list_start, skip_list_end))
+            animation_handler.get_instance().treap_time_stamps.append((treap_start, treap_end))
+            log_widget.push(f"delete:{int(key)}", log_list)
+            log_message.config(text=log_widget.update())
+
+            if algorithm.get() == "Skip List":
+                update_canvas(animation_handler.get_instance().skip_list_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().pseudocode_list[graph_list_index][1])
+            elif algorithm.get() == "Treap":
+                update_canvas(animation_handler.get_instance().treap_graph_list[graph_list_index])
+                pseudocode_obj.update(animation_handler.get_instance().treap_pseudocode_list[graph_list_index][0],
+                                      animation_handler.get_instance().treap_pseudocode_list[graph_list_index][1])
 
 
-# opens FileExplorer to choose ONLY .txt files
-# TODO: Handle spezial chars !
 def open_file():
     global active
     global play_pause_button
@@ -347,7 +620,8 @@ def open_file():
     active = False
     global data
     token = False
-    file = filedialog.askopenfile(mode='r', title="Open file", filetypes=[('Text Files', '*.txt')])
+
+    file = tk.filedialog.askopenfile(mode='r', title="Open file", filetypes=[('Text Files', '*.txt')])
     # check if file was opend successfully
     if file:
         # set Label with filename only if open was successful
@@ -355,46 +629,41 @@ def open_file():
         data = []
         # append each line to DATA list, where they are stored
         for line in file:
-            # check if line contains more than One char
-            if len(line.split()) > 1:
-                current_line = line.split(",")
-                for element in current_line:
-                    if re.search("[a-zA-Z]+", element):
-                        data = []
-                        messagebox.showerror("error", f"File contains not supported data : {element}")
-                        return
-                    # checks if white Space is in File and ignores it
-                    elif element.isspace():
-                        messagebox.showinfo("Warning", f"Your FILE : {file.name} contains Whitespace !")
-                        continue
-                    else:
-                        data.append(int(element))
-
+            command = line.rstrip().split(":")
+            tmp = (command[0], command[1])  # command[0] ="insert", command[1]="3"
+            if tmp in data:
+                continue
             else:
-                # check if line contains letters or is Empty => not supported !!!
-                if re.search("[a-zA-Z]+", line):
-                    data = []
-                    messagebox.showerror("error", f"File contains not supported data : {line}")
-                    return
-                # checks if white Space is in File and ignores it
-                elif line.isspace():
-                    messagebox.showinfo("Warning", f"Your FILE : {file.name} contains Whitespace !")
-                    continue
-                else:
-                    data.append(int(line))
-    if token:
-        messagebox.showinfo("Warning", f"Some values appeared multiple times! Only added once to Data")
-    read_data_command()
+                data.append(tmp)
+        read_data_command()
 
 
-def save_file():
+def save_graph():
     global active
     global play_pause_button
+    global filename
+    global fig
+
     play_pause_button.config(text="Play")
     active = False
+    filename = ""
+    filename = tk.filedialog.asksaveasfilename(title="Save File",
+                                               filetypes=[("png files", "*.png"), ("jpeg files", "*.jpeg")])
+    if filename:
+        fig.savefig(filename)
+
+
+def save_graph():
+    global active
+    global play_pause_button
+    global filename
     global fig
-    filename = filedialog.asksaveasfilename(title="Save File",
-                                            filetypes=[("png files", "*.png"), ("jpeg files", "*.jpeg")])
+
+    play_pause_button.config(text="Play")
+    active = False
+    filename = ""
+    filename = tk.filedialog.asksaveasfilename(title="Save File",
+                                               filetypes=[("png files", "*.png"), ("jpeg files", "*.jpeg")])
     if filename:
         fig.savefig(filename)
 
@@ -407,10 +676,140 @@ def placeholder(event):
     value_entry.delete(0, tk.END)
 
 
+def github():
+    webbrowser.open("https://github.com/timokilb/projektgruppe", new=1)
+
+
+def donate():
+    global algorithm
+    if algorithm.get() == "Skip List":
+        webbrowser.open("https://www.paypal.me/timokilb", new=1)
+    else:
+        webbrowser.open("https://www.paypal.me/denizdogan94", new=1)
+
+
+def instagram():
+    webbrowser.open("https://www.instagram.com/resbalar.sb/?hl=de", new=1)
+
+
+def how_it_works(event=None):
+    how_it_works_window = tk.Toplevel()
+    how_it_works_window.title("How it works")
+    how_it_works_window.minsize(300, 300)
+    how_it_works_window.config(padx=20, pady=20, bg=background_color)
+    how_it_works_window.resizable(height=False, width=False)
+    how_it_works_frame = tk.Frame(how_it_works_window, **style_sheet["how_it_works_frame"])
+    how_it_works_frame.pack(side="top", anchor="nw", fill="both", expand=1)
+    explanation_text = open("./res/howto.txt", "r").read()
+    explanation_message = tk.Message(master=how_it_works_frame, text=explanation_text, **style_sheet["how_it_works"])
+    explanation_message.pack(anchor="nw")
+
+
+def check_decision():
+    global filename
+    global save_decision_list
+    if "save_all" and True in save_decision_list[2]:
+        save_graph()
+        save_log()
+        filename = ""
+        return
+    elif "save_graph" and True in save_decision_list[0]:
+        save_graph()
+        filename = ""
+    elif "save_log" and True in save_decision_list[1]:
+        save_log()
+        filename = ""
+
+
+def get_frame():
+    global pseudocode_frame
+    return pseudocode_frame
+
+
+def save_log():
+    global log_list
+    global filename
+    if filename == "":
+        filename = tk.filedialog.asksaveasfilename(title="Save File",
+                                                   filetypes=[("txt files", "*.txt")])
+    tmp = open(filename + ".txt", mode="w")
+
+    if tmp:
+        for line in log_list:
+            tmp.write(line + "\n")
+    tmp.close()
+
+
+def open_save():
+    def save_decision():
+        global save_decision_list
+        save_decision_list.clear()
+        save_decision_list.append(("save_graph", save_graph.get()))
+        save_decision_list.append(("save_log", save_log.get()))
+        save_decision_list.append(("save_all", (save_graph.get() and save_log.get() or (save_all.get()))))
+        check_decision()
+        choose_save_window.destroy()
+
+    choose_save_window = tk.Toplevel()
+    choose_save_window.title("Save")
+    choose_save_window.minsize(300, 136)
+    choose_save_window.resizable(width=False, height=False)
+    choose_save_window.config(padx=10, pady=30, bg=background_color)
+
+    save_graph = tk.BooleanVar()
+    tk.Checkbutton(choose_save_window, text="Save Graph", variable=save_graph, **style_sheet["save_window_check"]).pack(
+        side="top", anchor="w")
+    save_log = tk.BooleanVar()
+    tk.Checkbutton(choose_save_window, text="Save Logs", variable=save_log, **style_sheet["save_window_check"]).pack(
+        side="top", anchor="w")
+
+    save_all = tk.BooleanVar()
+    tk.Checkbutton(choose_save_window, text="Save Graph and Logs", variable=save_all,
+                   **style_sheet["save_window_check"]).pack(side="top", anchor="w")
+
+    tk.Button(choose_save_window, text='Save', command=save_decision, **style_sheet["save_window_button"], ).pack(
+        side="left", anchor="nw", fill="x", expand=1,
+        padx=2, pady=6)
+    tk.Button(choose_save_window, text='Cancel', command=choose_save_window.destroy,
+              **style_sheet["save_window_button"], ).pack(side="left", anchor="nw",
+                                                          fill="x", expand=1, padx=2,
+                                                          pady=6)
+
+
+def set_mode(param):
+    global graph_list_index
+    global algorithm
+    global mode
+    global log_widget
+    global log_message
+    if algorithm.get() == "Skip List":
+        if graph_list_index > len(animation_handler.get_instance().skip_list_graph_list) - 1:
+            graph_list_index = 0
+    elif algorithm.get() == "Treap":
+        if graph_list_index > len(animation_handler.get_instance().treap_graph_list) - 1:
+            graph_list_index = 0
+    mode = param
+    if mode == "single_command":
+        log_widget.push(f"Mode: Single Command")
+        log_message.config(text=log_widget.update())
+    else:
+        log_widget.push(f"Mode:All Commands")
+        log_message.config(text=log_widget.update())
+
+
+def faster_command(event=None):
+    global speed
+    if speed < 800:
+        speed += 150
+
+
+def slower_command(event=None):
+    global speed
+    if speed > 0:
+        speed -= 150
+
+
 style_sheet = {
-    # background color: 3c3f41
-    # button color:
-    # Font Color:
     "animation_button": {
         "fg": "#a9b7c6",
         "bg": "#313335",
@@ -418,9 +817,26 @@ style_sheet = {
         "activebackground": "#a9b7c6",
         "font": "Helvetica, 12",
         "relief": "raised",
-        "bd": "3",
+        "bd": "2",
         "width": "10",
         "height": "2"
+    },
+    "save_window_button": {
+        "fg": "#a9b7c6",
+        "bg": "#313335",
+        "activeforeground": "#313335",
+        "activebackground": "#a9b7c6",
+        "font": "Helvetica, 12",
+        "relief": "raised",
+        "bd": "2",
+        "width": "5",
+        "height": "1"
+    },
+    "save_window_check": {
+        "fg": "#87929e",
+        "bg": "#3c3f41",
+        "font": "Helvetica, 12",
+        "height": "1"
     },
     "data_structure_button": {
         "fg": "#a9b7c6",
@@ -444,7 +860,8 @@ style_sheet = {
     "log_text": {
         "font": "helvetica, 11",
         "fg": "#a9b7c6",
-        "bg": "#2b2b2b"
+        "bg": "#2b2b2b",
+        "width": "500"
     },
     "button_frame": {
         "bg": "#3c3f41",
@@ -491,25 +908,46 @@ style_sheet = {
         "width": "10",
         "height": "2",
         "highlightthickness": "0"
+    },
+    "wind": {
+        "fg": "#a9b7c6",
+        "bg": "#313335",
+        "activeforeground": "#313335",
+        "activebackground": "#a9b7c6",
+        "font": "Helvetica, 16",
+        "relief": "raised",
+        "bd": "1",
+        "width": "5",
+        "height": "0",
+        "padx": "0"
+    },
+    "how_it_works": {
+        "fg": "#3a3a3a",
+        "font": "Helvetica, 16",
+        "width": "800"
+    },
+    "how_it_works_frame": {
+        "bd": "2",
+        "relief": "sunken",
     }
 }
-
-
-def get_frame():
-    global pseudocode_frame
-    return pseudocode_frame
-
 
 if __name__ == "__main__":
     # Init data structures and graphs
     graph_list_index = 0
+    command_list_index = 0
 
     treap = tr.Treap()
     treap_graph = TreapGraph(treap)
 
     # Array for all numbers from Input txt
     data = []
-
+    # Save Decision List
+    save_decision_list = []
+    # Save all logs
+    log_list = []
+    # FileName
+    filename = ""
     # Background Color
     background_color = "#3c3f41"
 
@@ -520,10 +958,29 @@ if __name__ == "__main__":
     # Main window
     root = tk.Tk()
     root.title("Projektgruppe")
-    root.config(background=background_color)
+    menubar = tk.Menu(root)
+    root.config(background=background_color, menu=menubar)
     root.minsize(850, 850)
-    active = False
 
+    social_menu = tk.Menu(menubar)
+    mode_menu = tk.Menu(menubar)
+    help_menu = tk.Menu(menubar)
+    menubar.add_cascade(label="Social", menu=social_menu)
+    menubar.add_cascade(label="Mode", menu=mode_menu)
+    menubar.add_cascade(label="Help", menu=help_menu)
+    social_menu.add_command(label="Git", command=github)
+    social_menu.add_command(label="Donate", command=donate)
+    social_menu.add_command(label="IG", command=instagram)
+    mode_menu.add_command(label="Single Command", command=lambda: set_mode("single_command"))
+    mode_menu.add_command(label="All Commands", command=lambda: set_mode("all_commands"))
+    help_menu.add_command(label="How it works", command=how_it_works)
+
+    # Toggles
+    active = False
+    # toogle for way of displaying default:single_command
+    mode = "single_command"
+    # Animation Speed
+    speed = 200
     # Canvas frame
     canvas_frame = tk.Frame(master=root, **style_sheet["canvas"])
     canvas = FigureCanvasTkAgg(fig, master=canvas_frame)
@@ -547,7 +1004,6 @@ if __name__ == "__main__":
     graph_structure_frame = tk.Frame(master=button_frame, bg=background_color)
     switch_algorithm_frame = tk.Frame(master=graph_structure_frame, bg=background_color)
     graph_operation_frame = tk.Frame(master=graph_structure_frame, bg=background_color)
-    # TODO : mit token und dann in jeder funktion öffen mit jeweiiger .txt und packen
     # Pseudocode canvas
     pseudocode_frame = tk.Frame(master=interface_frame, bg="#2b2b2b", highlightthickness=5,
                                 highlightbackground=background_color)
@@ -580,6 +1036,9 @@ if __name__ == "__main__":
     value_label = tk.Label(master=key_structure_frame, text="Key:", **style_sheet["label"])
     value_entry = tk.Entry(master=key_structure_frame, width=15, font="Helvetica, 12")
 
+    slower_button = tk.Button(master=key_structure_frame, text=u"\u23EA", **style_sheet["wind"], command=slower_command)
+    faster_button = tk.Button(master=key_structure_frame, text=u"\u23E9", **style_sheet["wind"], command=faster_command)
+    root.bind('+', faster_command)
     value_entry.insert(0, "")
 
     search_button = tk.Button(master=operator_frame, text="Search", **style_sheet["data_structure_button"],
@@ -599,13 +1058,12 @@ if __name__ == "__main__":
     algo_dropdown.config(**style_sheet["dropdown"])
     algo_dropdown["menu"].config(fg="#a9b7c6", bg="#313335", activeforeground="#313335", activebackground="#a9b7c6")
 
-    save_button = tk.Button(master=graph_structure_frame, text="Save Graph", **style_sheet["data_structure_button"],
-                            command=save_file)
+    save_button = tk.Button(master=graph_structure_frame, text="Save ..", **style_sheet["data_structure_button"],
+                            command=open_save)
 
     clear_button = tk.Button(master=graph_structure_frame, text="Clear Graph", **style_sheet["data_structure_button"],
                              command=clear_command)
 
-    # info_button = tk.Button(root, text="?", fg="red", bg="green", command=info_command, relief="flat", bitmap="info")
     # Testing log output
     log_widget = lw.LogWidget()
     log_message = tk.Message(master=log_frame, text=log_widget.update(), **style_sheet["log_text"], anchor='nw')
@@ -633,16 +1091,17 @@ if __name__ == "__main__":
     pseudocode_frame.pack(side="left", anchor="nw", fill="both", expand=1)
     pseudocode_obj.pack_labels()
 
-    #    info_button.pack()
-
     # Packing all buttons
     stop_button.pack(side="left", fill="x", padx="2", pady="2")
+
     previous_button.pack(side="left", fill="x", padx="2", pady="2")
     play_pause_button.pack(side="left", fill="x", padx="2", pady="2")
     next_button.pack(side="left", fill="x", padx="2", pady="2")
 
     value_label.pack(side="left", fill="x", padx="2", pady="2")
     value_entry.pack(side="left", fill="x", padx="2", pady="2", expand=1)
+    faster_button.pack(side="right", padx="2")
+    slower_button.pack(side="right", padx="2")
 
     insert_button.pack(side="left", fill="x", padx="2", pady="2", expand=1)
     delete_button.pack(side="left", fill="x", padx="2", pady="2", expand=1)
@@ -655,9 +1114,8 @@ if __name__ == "__main__":
     save_button.pack(side="left", fill="x", padx="2", pady="2", expand=1)
     clear_button.pack(side="left", fill="x", padx="2", pady="2", expand=1)
 
+    # Binding keyshortcuts
     value_entry.bind("<Button>", placeholder)
-    # value_entry.bind("<Key>", placeholder)
-    root.bind('<Return>', callor)
-
+    root.bind('<Return>', insert_command)
     # Start program
     root.mainloop()
